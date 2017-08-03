@@ -5,7 +5,7 @@ Simple consumer using Pykafka https://github.com/Parsely/pykafka.
 ## Usage
 
 ```bash
-pip install -f requirements.txt
+pip install -r requirements.txt
 
 export KAFKA_CA_FILE=<cafile>
 export KAFKA_CERT_FILE=<certfile>
