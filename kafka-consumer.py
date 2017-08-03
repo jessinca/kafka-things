@@ -1,12 +1,15 @@
 import sys
 import signal
 import os
+from pykafka.common import OffsetType
 from pykafka import KafkaClient, SslConfig
+from distutils.util import strtobool
 
 
 def signal_handler(signal, frame):
     print 'Consumed %s messages' % message_count
     sys.exit(0)
+
 
 if len(sys.argv) < 3:
   print 'Usage : python kafka-consumer.py <broker> <topic>'
@@ -14,6 +17,8 @@ if len(sys.argv) < 3:
 
 brokers = sys.argv[1]
 topic = sys.argv[2]
+is_using_latest_offset = strtobool(sys.argv[3]) if len(sys.argv) > 3 else 0
+
 cafile = os.getenv('KAFKA_CA_FILE')
 certfile = os.getenv('KAFKA_CERT_FILE')
 keyfile = os.getenv('KAFKA_PRIVATE_KEY')
@@ -31,7 +36,10 @@ topic = client.topics[topic]
 
 signal.signal(signal.SIGINT, signal_handler)
 
-consumer = topic.get_simple_consumer()
+auto_offset_reset = OffsetType.LATEST if is_using_latest_offset else OffsetType.EARLIEST
+consumer = topic.get_simple_consumer(
+    auto_offset_reset=auto_offset_reset
+)
 for message in consumer:
   if message is not None:
     print message.offset, message.value
